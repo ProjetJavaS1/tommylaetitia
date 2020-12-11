@@ -35,28 +35,31 @@ public class ImageCouleur{
   		ColorModel cm = ropimage.getColorModel();
 	
 		if (cm.getColorSpace ().getType() == ColorSpace.TYPE_RGB) {
+			
  	
  		//si on entre dans le if, on peut obtenir chaque pixel RVB
 		// getRGB () formate tjrs chaque pixel dans un int (4 octets) 
 
- 		int[] px2;
+ 		
 
- 		// on stocke ds px2 chaque point d'image comme un Int
+ 		// on stocke ds tableau chaque point d'image comme un Int
 		// on passe de x=0, y=0, à img_width et img_height octets
- 		// null = stocker les données dans px2
+ 		// null = stocker les données dans tableau
  		// 0 = stocker les données à l'offset 0 du tableau de destination
  		// dernier "IMG_WIDTH" = cette image contient IMG_WIDTH pixels par ligne
-   		px2 = bi.getRGB(0,0,img_width,img_height,null,0,img_width);
+   		tableau= bi.getRGB(0,0,img_width,img_height,null,0,img_width);
+   		System.out.println(tableau);
   		}
+
 	}
 
 	// convertir l'image en échelle de gris 
 
-	public void ImageGrayScale (){
+	public void imageGrayScale (){
 		int r=0; 
 		int g=0; 
 		int b=0; 
-		int grayScale;
+		int grayScale=0;
 		int[] tableauGris = new int[tableau.length];
 
 		//on va changer chaque valeur d'octet
@@ -76,6 +79,7 @@ public class ImageCouleur{
  			tableauGris[i]= grayScale;
  			// | correspond à un ou inclusif 
 		}
+		System.out.println(tableauGris);
 
 		DataBufferInt dataBuffer = new DataBufferInt(tableauGris,tableauGris.length);
  		
