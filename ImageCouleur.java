@@ -35,12 +35,9 @@ public class ImageCouleur{
   		ColorModel cm = ropimage.getColorModel();
 	
 		if (cm.getColorSpace ().getType() == ColorSpace.TYPE_RGB) {
-			
  	
  		//si on entre dans le if, on peut obtenir chaque pixel RVB
 		// getRGB () formate tjrs chaque pixel dans un int (4 octets) 
-
- 		
 
  		// on stocke ds tableau chaque point d'image comme un Int
 		// on passe de x=0, y=0, à img_width et img_height octets
@@ -59,6 +56,7 @@ public class ImageCouleur{
 		int r=0; 
 		int g=0; 
 		int b=0; 
+		int alpha=255; //taux de transparence des pixels
 		int grayScale=0;
 		int[] tableauGris = new int[tableau.length];
 
@@ -68,7 +66,7 @@ public class ImageCouleur{
 			//on note la valeur r,b,g
 			// >> permet le décalage binaire vers la droite 
 			// oxff pour que ce soit un hexadécimal
-			// on convertit sur 24bits 
+			alpha = (tableau[i] >> 24) & 0xff;
 			r = (tableau[i] >> 16) & 0xff;
 			g = (tableau[i] >> 8) & 0xff;
 			b = (tableau[i]) & 0xff;
@@ -76,7 +74,7 @@ public class ImageCouleur{
 			grayScale = (r+b+g)/3 ; 
 			// on prend la moyenne des 3 composantes
 
- 			tableauGris[i]= grayScale;
+ 			tableauGris[i]= (alpha<< 24 | grayScale<<16| grayScale<<8| grayScale );
  			// | correspond à un ou inclusif 
 		}
 		System.out.println(tableauGris);
