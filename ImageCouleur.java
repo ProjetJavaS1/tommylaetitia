@@ -10,12 +10,12 @@ import java.awt.color.ColorSpace;
 
 public class ImageCouleur{
  	
- 	private byte[] tableau;
+ 	private int[] tableau;
 	private int IMG_WIDTH;
 	private int IMG_HEIGHT;
 
 
-	public ImageCouleur( String fn){
+	public ImageCouleur( String fn){  //ouvrir image 
 
 		RenderedOp ropimage; // contiendra les métadonnées et les données
 		ropimage = JAI.create("fileload", fn); // ouvre fichier
@@ -45,6 +45,35 @@ public class ImageCouleur{
  		// dernier "IMG_WIDTH" = cette image contient IMG_WIDTH pixels par ligne
    		px2 = bi.getRGB(0,0,IMG_WIDTH,IMG_HEIGHT,null,0,IMG_WIDTH);
   		}
+	}
+
+	// convertir l'image en échelle de gris 
+
+	public byte[] ImageGrayScale (){
+		int r=0; 
+		int g=0; 
+		int b=0; 
+		byte grayScale;
+		byte[] tableauGris = new byte[tableau.length];
+
+		//on va changer chaque valeur d'octet
+
+		for(int i=0; i < tableau.length; i++) {
+			//on note la valeur r,b,g
+			// >> permet le décalage binaire vers la droite 
+			// oxff pour que ce soit un hexadécimal
+			// on convertit sur 24bits 
+			r = (tableau[i] >> 16) & 0xff;
+			g = (tableau[i] >> 8) & 0xff;
+			b = (tableau[i]) & 0xff;
+
+			grayScale = (byte) ((r+b+g)/3) ; 
+			// on prend la moyenne des 3 composantes
+
+ 			tableauGris[i]= grayScale;
+ 			// | correspond à un ou inclusif 
+		}
+		return tableauGris;
 	}
 
 }
