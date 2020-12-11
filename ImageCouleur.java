@@ -15,7 +15,7 @@ public class ImageCouleur{
 	private int IMG_HEIGHT;
 
 
-	public ImageCouleur( String fn){
+	public void OpenImageCouleur( String fn){
 
 		RenderedOp ropimage; // contiendra les métadonnées et les données
 		ropimage = JAI.create("fileload", fn); // ouvre fichier
