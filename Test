@@ -2,8 +2,8 @@ import mam3.ipa.projet.*;
 
 public class Test{
 	public static void main(String[] args){
-		ImageCouleur image = new ImageCouleur(args[0]);
+		ImageCouleur i = new ImageCouleur(args[0]);
 
-		image.ImageGrayScale();
+		i.imageGrayScale();
 	}
 }
