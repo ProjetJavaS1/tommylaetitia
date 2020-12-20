@@ -43,6 +43,8 @@ public void matriceConv(String s){
 			
 				if (n==3){
 
+					int[] nouvtab = new int[tableau.length];
+
 					int nmat=(int)Math.sqrt(tableau.length);
 
 					for(int i=0; i<tableau.length;i++){
@@ -55,10 +57,10 @@ public void matriceConv(String s){
 
 						for(int u=-1;u<=1;u++){
 							for(int v=-1;v<=1;v++){
-								if((x-u)<nmat && (x-u)>=0 && (y-v)<nmat && (y-v)>=0){
-									int redInt= (int)( ( tableau[(x-u)*nmat+y-v] >> 16) &0xFF) ;
-									int greenInt= (int)( (tableau[(x-u)*nmat+y-v] >> 8) &0xFF ) ;
-									int blueInt= (int) ( tableau[(x-u)*nmat+y-v] & 0xFF );
+							    if((x-u)<nmat && (x-u)>=0 && (y-v)<nmat && (y-v)>=0){
+								    int redInt=(tableau[(x-u)*nmat+y-v] >> 16) & 0xFF;
+									int greenInt=(tableau[(x-u)*nmat+y-v] >> 8) & 0xFF;
+									int blueInt=tableau[(x-u)*nmat+y-v] & 0xFF;
 									 
 									sommeRed=sommeRed+(matfiltre[u+1][v+1]*redInt);
 									sommeGreen=sommeGreen+(matfiltre[u+1][v+1]*greenInt);
@@ -77,7 +79,6 @@ public void matriceConv(String s){
 						int resBlue=(int)(0xFF & sommeBlue);
 
 						nouvtab[i]= ( resRed << 16| resGreen << 8 | resBlue ) ;
-						System.out.println(nouvtab[i]);
 					}
 				}
 
@@ -112,7 +113,7 @@ public void matriceConv(String s){
 						sommeBlue=(int)(Math.floor(sommeBlue/norm));
 						int resBlue=(int)(0xFF & sommeBlue);
 
-						nouvtab[i]= ( resRed << 16| resGreen << 8 | resBlue ) ;
+						nouvtab[i]= ( resRed << 16| resGreen << 8 | resBlue );
 					}
 
 				}
@@ -143,4 +144,4 @@ public void matriceConv(String s){
 		catch(IOException e){System.out.println("Problème d'exception : "+e);}
 	}
 
-	}
+}
