@@ -43,33 +43,46 @@ public void matriceConv(String s){
 			
 				if (n==3){
 
-					int nmat=(int)Math.sqrt(tableau.length);
 					this.nouvtab = new int[tableau.length];
 
 					for(int i=0; i<tableau.length;i++){
-						int x =(int)Math.floor(i/nmat);
-						int y =i-nmat*x;
+
+						int x =(int)Math.floor(i/img_width);
+						int y =i-img_width*x;
+
 						int sommeRed=0;
 						int sommeGreen=0;
 						int sommeBlue=0;
-						int alpha= 255;  
+						int alpha=255;
 
 						for(int u=-1;u<=1;u++){
 							for(int v=-1;v<=1;v++){
-							    if((x-u)<nmat && (x-u)>=0 && (y-v)<nmat && (y-v)>=0){
+							    if((x-u)<img_height && (x-u)>=0 && (y-v)<img_width && (y-v)>=0){
 
-							    	alpha = (tableau[(x-u)*nmat+y-v] >> 24 ) & 0xFF ;
-								    int redInt=(tableau[(x-u)*nmat+y-v] >> 16) & 0xFF;
-									int greenInt=(tableau[(x-u)*nmat+y-v] >> 8) & 0xFF;
-									int blueInt=tableau[(x-u)*nmat+y-v] & 0xFF;
+							    	alpha =(tableau[(x-u)*img_width+y-v] >> 24) & 0xFF ;
+
+								    int redInt=(tableau[(x-u)*img_width+y-v] >> 16) & 0xFF;
+									int greenInt=(tableau[(x-u)*img_width+y-v] >> 8) & 0xFF;
+									int blueInt=tableau[(x-u)*img_width+y-v] & 0xFF;
 									
 									sommeRed=sommeRed+(matfiltre[u+1][v+1]*redInt);
 									sommeGreen=sommeGreen+(matfiltre[u+1][v+1]*greenInt);
 									sommeBlue=sommeBlue+(matfiltre[u+1][v+1]*blueInt);
+									
+									if (sommeRed<0){
+										sommeRed=0;
+									}
+									if (sommeBlue<0){
+										sommeBlue=0;
+									}
+									if (sommeGreen<0){
+										sommeGreen=0;
+									}
+									
 								}
 							}
 						}
-
+						
 						sommeRed=(int)(Math.floor(sommeRed/norm));
 						int resRed= 0xFF & sommeRed;
 
@@ -79,17 +92,17 @@ public void matriceConv(String s){
 						sommeBlue=(int)(Math.floor(sommeBlue/norm));
 						int resBlue=0xFF & sommeBlue;
 
-						nouvtab[i]= (alpha<< 24 | resRed << 16 | resGreen << 8 | resBlue) ;
+						nouvtab[i]= (alpha<< 24 | resRed<< 16 | resGreen << 8 | resBlue) ;
 					}
 				}
 
 				else if(n==5){
-					int nmat=(int)Math.sqrt(tableau.length);
+					
 					this.nouvtab = new int[tableau.length];
 
 					for(int i=0; i<tableau.length;i++){
-						int x =(int)Math.floor(i/nmat);
-						int y =i-nmat*x;
+						int x =(int)Math.floor(i/img_width);
+						int y =i-img_width*x;
 						int sommeRed=0;
 						int sommeGreen=0;
 						int sommeBlue=0;
@@ -97,16 +110,27 @@ public void matriceConv(String s){
 
 						for(int u=-2;u<=2;u++){
 							for(int v=-2;v<=2;v++){
-								if((x-u)<=n && (x-u)>=0 && (y-v)<=n &&(y-v)>=0){
-									alpha = (tableau[(x-u)*nmat+y-v] >> 24 ) & 0xFF;
+								if((x-u)<=img_height && (x-u)>=0 && (y-v)<=img_width &&(y-v)>=0){
+									alpha = (tableau[(x-u)*img_width+y-v] >> 24 ) & 0xFF;
 
-									int redInt= ( tableau[(x-u)*nmat+y-v] >> 16) &0xFF ;
-									int greenInt= (tableau[(x-u)*nmat+y-v] >> 8) &0xFF ;
-									int blueInt= (tableau[(x-u)*nmat+y-v] ) & 0xFF ;
+									int redInt= ( tableau[(x-u)*img_width+y-v] >> 16) & 0xFF ;
+									int greenInt= (tableau[(x-u)*img_width+y-v] >> 8) & 0xFF ;
+									int blueInt= (tableau[(x-u)*img_width+y-v] ) & 0xFF ;
 
 									sommeRed=sommeRed+(matfiltre[u+1][v+1]*redInt);
 									sommeGreen=sommeGreen+(matfiltre[u+1][v+1]*greenInt);
 									sommeBlue=sommeBlue+(matfiltre[u+1][v+1]*blueInt);
+
+									if (sommeRed<0){
+										sommeRed=0;
+									}
+									if (sommeBlue<0){
+										sommeBlue=0;
+									}
+									if (sommeGreen<0){
+										sommeGreen=0;
+									}
+
 								}
 							}
 						}
@@ -120,7 +144,7 @@ public void matriceConv(String s){
 						sommeBlue=(int)(Math.floor(sommeBlue/norm));
 						int resBlue= 0xFF & sommeBlue;
 
-						nouvtab[i]= (alpha <<24 | resRed << 16 | resGreen << 8 | resBlue);
+						nouvtab[i]= (alpha << 24 | resRed << 16 | resGreen << 8 | resBlue);
 					}
 
 				}
