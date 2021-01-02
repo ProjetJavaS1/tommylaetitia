@@ -1,0 +1,30 @@
+import mam3.ipa.Projet.*;
+
+public class Test{
+	public static void main(String[] args){
+		DonneesFichier donnee=new DonneesFichier(args[0]);
+		if(donnee.getType()=="gris"){
+			ImageNiveauGris i=new ImageNiveauGris(donnee.getPath(), donnee.getImgHeight(),donnee.getImgWidth(),donnee.getTableauByte());
+
+			i.assombrissement();
+
+			try{
+				i.matriceConv(args[1]);
+			}
+			catch(BadMatriceException e){System.out.println(e);}
+
+		}
+		else if(donnee.getType()=="couleur"){
+			ImageCouleur j=new ImageCouleur(donnee.getPath(), donnee.getImgHeight(),donnee.getImgWidth(),donnee.getTableauInt());
+
+			j.eclairage();
+			j.assombrissement();
+
+			try{
+				j.matriceConv(args[1]);
+			}
+			catch(BadMatriceException e){System.out.println(e);}
+
+		}
+	}
+}
