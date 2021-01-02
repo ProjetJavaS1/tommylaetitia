@@ -1,0 +1,99 @@
+package mam3.ipa.Projet;
+
+import java.awt.image.SampleModel;
+import javax.media.jai.RasterFactory;
+import java.awt.image.BufferedImage;
+import java.awt.image.Raster;
+import java.awt.image.DataBufferByte;
+import java.awt.Point;
+import java.awt.image.DataBuffer;
+import javax.media.jai.JAI;
+
+import java.awt.image.ColorModel;
+import java.awt.image.DirectColorModel;
+import java.awt.image.DataBufferInt;
+import java.awt.image.WritableRaster;
+import javax.media.jai.RenderedOp;
+
+import java.io.BufferedReader;
+
+import java.nio.file.Paths;
+import java.nio.file.Path;
+import java.nio.file.Files;
+import java.io.IOException;
+
+
+public abstract class TraitementImage{
+
+	//Ici on s'occupe de l'enregistrement de l'image
+	public void enregistrementImageGris(Path p, String modif, int img_width, int img_height, byte[] tab){
+
+		String[] tokens=p.getFileName().toString().split("\\."); //On prend le nom de notre fichier
+
+		// On commence par définir le type d'image que l'on veut sauvegarder
+		// On créé un model de type TYPE_BYTE, pour avoir une image de dimensions
+ 		// IMG_WIDTH et IMG_HEIGHT. Le dernier argument est le notre d'octet
+ 		SampleModel sm = RasterFactory.createBandedSampleModel(DataBuffer.TYPE_BYTE,img_width,img_height,1);
+ 		//On créé un bufferedImage pour stocker les données de l'image
+ 		// Ce sera une image de dimensions IMG_WIDTH et IMG_HEIGHT
+ 		BufferedImage image = new BufferedImage(img_width, img_height, BufferedImage.TYPE_BYTE_GRAY);
+
+  		image.setData(Raster.createRaster(sm, new DataBufferByte(tab, tab.length), new Point()));
+ 		//On le sauvegarde dans un fichier
+  		JAI.create("filestore",image,tokens[0]+"_"+modif+".png","PNG");
+	}
+
+
+
+	public void enregistrementImageCouleur(Path p, String modif, int img_width, int img_height, int[] tab){
+
+		String[] tokens=p.getFileName().toString().split("\\."); //On prend le nom de notre fichier
+
+		DataBufferInt dataBuffer = new DataBufferInt(tab,tab.length);
+ 		
+  		int samplesPerPixel = 4; //4 channels: aRGB
+
+ 		// on crée un ColorModel pour l'image aRGB 
+ 		// tous les pixel sont sur 32 bits 
+ 		// R is located doing an AND operation between the int and
+ 		// the 0xFF0000 mask. Following masks correspond to G, B
+ 		// and the alpha channel
+  		ColorModel colorModel = new DirectColorModel(32,0xFF0000,0xFF00,0xFF,0xFF000000);
+  		//On a besoin d'un raster avec les bonnes dimensions 
+  		WritableRaster raster = Raster.createPackedRaster(dataBuffer, img_width, img_height, img_width,
+  			((DirectColorModel) colorModel).getMasks(), null);
+  		//On met tout ensemble avec un objet BufferedImage
+ 		BufferedImage image = new BufferedImage(colorModel, raster, colorModel.isAlphaPremultiplied(), null);
+ 		//On le met dans un fichier
+  		RenderedOp op1 = JAI.create("filestore", image, tokens[0]+"_"+modif+".png", "png");
+	}
+
+
+	public int[][] creationMatriceFiltre(Path chemin) throws IOException{
+		
+			BufferedReader reader= Files.newBufferedReader(chemin); //On lit notre fichier
+
+			int l=0;
+			int [][] filtre=new int[5][5]; //On initialise un ematrice par défaut
+			String line=null;
+
+			while((line = reader.readLine()) != null){
+				String[] tokens = line.split(";");
+				for(int j=0;j<tokens.length;j++){
+					filtre[l][j]=Integer.parseInt(tokens[j]); //On restranscrit notre fichier dans une matrice
+				}
+				l=l+1; //Permet de savoir le notre de ligne et de colonne
+			}
+
+			int n=l; //Taille tableau à garder
+			int [][] matfiltre = new int[l][l];//On créé notre matrice filtre avec les bonnes dimensions
+
+			for(int kl=0;kl<n;kl++){
+				for(int kc=0;kc<n;kc++){
+					matfiltre[kl][kc]=filtre[kl][kc]; //On la remplit de nouveau 
+				}
+			}
+			return matfiltre;
+	}
+	
+}
