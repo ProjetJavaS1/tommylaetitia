@@ -1,0 +1,90 @@
+package mam3.ipa.Projet;
+import java.lang.Math;
+
+public class ProduitMatriciel{
+	
+	//Cette méthode calcule les nouvelles valeurs de notre tableau après application de la matrice de convolution
+	public static void nouvValeurGris(int[][] matfiltre,int img_width,int img_height, byte[] tab, int borneinf, int bornesup, int norm, byte[] nouvtab){
+
+		for(int i=0; i<tab.length;i++){
+			int x =(int)Math.floor(i/img_width); //On construit une matrice imaginaire à partir de la taille de notre image et de notre indice
+			int y =i-img_width*x;
+			int somme=0;//On initialise notre somme
+						
+			//Ici il s'agit de l'opération trouvée pour permettre l'application de notre matrice de convolution.
+			for(int u=borneinf;u<=bornesup;u++){
+				for(int v=borneinf;v<=bornesup;v++){
+					if((x-u)<img_height && (x-u)>=0 && (y-v)<img_width && (y-v)>=0){
+						int entier=(int)(0xFF & tab[(x-u)*img_width+y-v]);
+						somme=somme+(matfiltre[u+1][v+1]*entier);
+					}
+				}
+			}
+
+			//Si la somme est inférieur à zéro, on la met à zéro. Nos valeurs doivent aller de 0 à 255
+			if(somme<0){
+				somme=0;
+			}
+			somme=(int)(Math.floor(somme/norm));
+			byte res=(byte)(0xFF & somme); //Ici on permet à nos valeurs de ne pas dépassser 255
+
+			nouvtab[i]=res; //Ce nouveau tableau aide à la réalisation de ce produit matriciel
+		}
+	}
+
+	//Meme procédé pour cette méthode, le seul changement est qu'on agit sur les 3 octets de nos pixels
+	public static void nouvValeurCouleur(int[][] matfiltre,int img_width,int img_height, int[] tab,int borneinf, int bornesup, int norm, int[] nouvtab){
+
+		for(int i=0; i<tab.length;i++){
+
+			int x =(int)Math.floor(i/img_width);
+			int y =i-img_width*x;
+
+			int sommeRed=0;
+			int sommeGreen=0;
+			int sommeBlue=0;
+			int alpha=255;
+
+			for(int u=-1;u<=1;u++){
+				for(int v=-1;v<=1;v++){
+					if((x-u)<img_height && (x-u)>=0 && (y-v)<img_width && (y-v)>=0){
+
+						int redInt=(tab[(x-u)*img_width+y-v] >> 16) & 0xFF; //On prend que la valeur de rouge
+						int greenInt=(tab[(x-u)*img_width+y-v] >> 8) & 0xFF;
+						int blueInt=tab[(x-u)*img_width+y-v] & 0xFF;
+									
+						sommeRed=sommeRed+(matfiltre[u+1][v+1]*redInt);
+						sommeGreen=sommeGreen+(matfiltre[u+1][v+1]*greenInt);
+						sommeBlue=sommeBlue+(matfiltre[u+1][v+1]*blueInt);
+									
+					}
+				}
+			}
+
+			if (sommeRed<0){
+				sommeRed=0;
+			}
+			if (sommeBlue<0){
+				sommeBlue=0;
+			}
+			if (sommeGreen<0){
+				sommeGreen=0;
+			}
+										
+						
+			sommeRed=(int)(Math.floor(sommeRed/norm));
+			int resRed= 0xFF & sommeRed;
+
+			sommeGreen=(int)(Math.floor(sommeGreen/norm));
+			int resGreen=0xFF & sommeGreen;
+
+			sommeBlue=(int)(Math.floor(sommeBlue/norm));
+			int resBlue=0xFF & sommeBlue;
+
+			int res =(alpha<< 24 | resRed<< 16 | resGreen << 8 | resBlue) ; //On reconstruit nos pixels sur 3 octets
+
+			nouvtab[i]=res;
+		}
+	}
+				
+}
