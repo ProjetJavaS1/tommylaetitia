@@ -1,0 +1,9 @@
+package mam3.ipa.Projet;
+
+public class BadMatriceException extends Exception{
+	public BadMatriceException(){}
+
+	public String toString(){
+		return "La matrice n'est pas conforme";
+	}
+}
