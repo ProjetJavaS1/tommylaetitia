@@ -1,0 +1,101 @@
+package mam3.ipa.Projet;
+
+import javax.media.jai.RenderedOp;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.awt.image.DataBuffer;
+import java.awt.image.ColorModel;
+import java.awt.image.Raster;
+import java.nio.file.Paths;
+import java.nio.file.Path;
+import java.nio.file.Files;
+import javax.media.jai.JAI;
+import java.awt.color.ColorSpace;
+
+
+public class DonneesFichier{
+	//Toutes les données du fichier permettront d'appliquer le traitement sur l'image par la suite
+	private int img_width;
+	private int img_height;
+	private Path p;
+	private int[] tableauInt;
+	private byte[] tableauByte;
+	private String type; //Permet lors du test de savoir si notre image est une image de couleur ou une image en noir et blanc
+
+	public DonneesFichier(String fn){
+		p=Paths.get(fn);
+		if(!Files.exists(p)){ //On vérifie si le fichier existe bien 
+			p=null;
+			System.out.print("Ce fichier n'existe pas");
+			type="inexistant";
+		}	
+
+		//On ouvre notre image et on crée notre tableau contenant chaque pixel de l'image
+		else{
+			RenderedOp ropimage; //Objet contenant les META-DONNÉES
+			ropimage = JAI.create("fileload", fn); // Ouverture du fichier
+			BufferedImage bi = ropimage.getAsBufferedImage(); // BufferedImage contiendra les données
+			img_width = ropimage.getWidth(); // largeur de l'image 
+			img_height = ropimage.getHeight(); // hauteur de l'image
+	 		// On commence par avoir le mode de color
+	  		ColorModel cm = ropimage.getColorModel();
+
+	  		// On regarde s'il s'agit d'une image en niveau de gris 
+	  		if (bi.getType() == BufferedImage.TYPE_BYTE_GRAY && cm.getColorSpace().getType() == ColorSpace.TYPE_GRAY) {
+	  			// On utilise l'objet Raster pour avoir les données de l'image 
+	  			//On ne peut pas le faire à partir du buffer
+	  	 		Raster r = ropimage.getData();
+	  			// On récupère un DataBufferByte
+	  	 		DataBufferByte db = (DataBufferByte)(r.getDataBuffer());
+	  	 		// Puis on construit le tableau d'octets
+	  	 		tableauByte = db.getData();
+	  	 		tableauInt = null;
+	  	 		type="gris";
+	  		}
+
+	  		//On regarde s'il s'agit d'une image couleur
+	  		if (cm.getColorSpace ().getType() == ColorSpace.TYPE_RGB) {
+ 	
+ 				//si on entre dans le if, on peut obtenir chaque pixel RVB
+				// getRGB () formate tjrs chaque pixel dans un int (4 octets) 
+
+ 				// on stocke ds tableau chaque point d'image comme un Int
+				// on passe de x=0, y=0, à img_width et img_height octets
+ 				// null = stocker les données dans tableau
+ 				// 0 = stocker les données à l'offset 0 du tableau de destination
+ 				// dernier "IMG_WIDTH" = cette image contient IMG_WIDTH pixels par ligne
+   				tableauInt= bi.getRGB(0,0,img_width,img_height,null,0,img_width);
+   				tableauByte=null;
+   				type="couleur";
+   			}
+   		}
+	}
+
+	//Ces gets permettent d'avoir les valeurs dans notre classe test et d'appeler nos deux principales classes avec ces arguments
+	public int getImgHeight(){
+		return img_height;
+	}
+
+	public Path getPath(){
+		return p;
+	}
+
+	public int getImgWidth(){
+		return img_width;
+	}
+
+
+	public int[] getTableauInt(){
+		return tableauInt;
+	}
+
+
+	public byte[] getTableauByte(){
+		return tableauByte;
+	}
+
+	public String getType(){
+		return type;
+	}
+
+}
