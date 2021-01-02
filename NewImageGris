@@ -1,0 +1,146 @@
+package mam3.ipa.Projet;
+
+
+import java.io.BufferedWriter;
+import java.nio.file.StandardOpenOption;
+import java.io.IOException;
+import java.lang.Math;
+import java.nio.file.Paths;
+import java.nio.file.Path;
+import java.nio.file.Files;
+
+
+public class ImageNiveauGris extends TraitementImage{
+	private byte[] tab;//Ce tableau stokera nos pixels de départ
+	private int img_width; //On enregistre la hauteur de l'image
+	private int img_height;// On enregistre la largeur de l'image
+	private Path p; //Il s'agira du chemin de notre image
+	private int[][] matfiltre;//Matfiltre permettra d'avoir la matrice filtre
+	private byte[] nouvtab;//Ce permettra permettra d'appliquer la matrice filtre
+	
+	public ImageNiveauGris(Path p, int img_height,int img_width,byte[] tab){
+		//On initialise chacune de nos variables 
+		this.tab=tab; 
+		nouvtab=new byte[tab.length];
+		this.p=p;
+		this.img_width=img_width;
+		this.img_height=img_height;
+	}
+
+	public void constructionFichier(){
+		//On créé le fichier de sortie 
+		String[] tokens=p.getFileName().toString().split("\\.");
+		String s2=tokens[0]+"-h.csv";
+
+		Path p2=Paths.get(s2); //On créé le chemin vers ce fichier
+		int[][] r = new int[256][2]; //On construit un tableau d'entiers qui nous permettra de tracer l'histogramme
+
+		if(Files.isDirectory(p2)){ //On vérifie si le fichier est un répertoire existant 
+					System.out.println("Le fichier est un répertoire existant");
+		}
+
+		if(!Files.isWritable(p2)){//On vérifie si on a les droits d'écriture sur le fichier
+			System.out.println("Vous n'avez pas les permissions");
+		}
+
+
+		try(BufferedWriter w=Files.newBufferedWriter(p2,StandardOpenOption.CREATE, StandardOpenOption.WRITE,StandardOpenOption.TRUNCATE_EXISTING)){
+
+			for(int i=0;i<=255;i++){ 
+				r[i][0]=i; //On construit l'abscisse de l'histogramme
+				int compt=0;
+				byte res=(byte)i;
+				for(int j=0;j<tab.length;j++){
+					if(tab[j]==res){
+						compt+=1; //Compte combien de fois on a zéro, un...
+					}
+				}
+				r[i][1]=compt; //Ajoute au tableau le résultat du compteur
+				//On écrit les résultats dans le fichier de sortie
+				w.write(String.valueOf(r[i][0])+";");
+				w.write(String.valueOf(r[i][1]));
+				w.newLine();
+			}
+		}
+		catch(IOException e){System.out.println("Problème d'exception : "+e);}
+	}
+
+	public void assombrissement(){
+		int n=tab.length;
+		//On parcours notre tableau et pour chaque valeur, on modifie chaque octet en utilisant une formule connue
+		for(int i=0;i<n;i++){
+			int entier=(int)(0xFF & tab[i]); //On convertit chaque valeur Byte en Int pour pouvoir appiquer la formule suivante
+			tab[i]=(byte)(Math.floor((entier*entier)/255));
+		}
+		//On enregistre l'image résultante
+		super.enregistrementImageGris(p,"assombrie",img_width,img_height,tab);
+	}
+
+	public void eclairage(){
+		int n=tab.length;
+		//On parcours notre tableau et pour chaque valeur, on modifie chaque octet en utilisant une formule connue
+		for(int i=0;i<n;i++){
+			int entier=(int)(0xFF & tab[i]);//On convertit chaque valeur Byte en Int pour pouvoir appiquer la formule suivante
+			tab[i]=(byte)(Math.sqrt(entier)*Math.sqrt(255));
+		}
+		//On enregistre l'image résultante 
+		super.enregistrementImageGris(p,"éclairée",img_width,img_height,tab);
+	}
+
+	public void matriceConv(String s) throws BadMatriceException{
+			
+		try{
+
+			Path chemin=Paths.get(s); //On créé le chemin vers ce fichier
+
+			String[] tokens=chemin.getFileName().toString().split("\\.");//On enregistre le nom de la matrice qu'on utilise
+
+			if(Files.isDirectory(chemin)){ //On vérifie si le fichier est un répertoire existant 
+				System.out.println("Le fichier est un répertoire existant");
+			}
+
+			if(!Files.isWritable(chemin)){
+				//On vérifie si on a les droits d'écritures sur ce fichier
+				System.out.println("Vous n'avez pas les permissions");
+			}
+
+			else{
+				//On créé notre matrice filtre à partir de ce fichier 
+				this.matfiltre=super.creationMatriceFiltre(chemin);
+				int n=matfiltre.length;
+
+				//Ici on met en place la normalisation
+				int norm=0;
+				for(int i=0;i<n;i++){
+					for(int j=0;j<n;j++){
+						norm=norm+matfiltre[i][j];//On somme chaque élément de notre matrice filtre
+					}
+				}
+
+				//Si la norme est nulle, on la met à 1
+				if(norm==0){
+					norm=1;
+				}
+
+				//En fonction de la valeur de notre matrice filtre, on appelle la méthode nouvValeurCouleur avec différent arguments
+				if (n==3){
+
+					ProduitMatriciel.nouvValeurGris( matfiltre,img_width,img_height,tab,-1,1, norm, nouvtab);
+				}
+
+				else if(n==5){
+					ProduitMatriciel.nouvValeurGris( matfiltre,img_width, img_height,tab,-2,2, norm, nouvtab);	
+				}
+
+				//On lève une exception si jamais la matrice de convolution n'est pas conforme
+				else{
+					throw new BadMatriceException();
+				}
+				//On enregistre l'image résultante
+				super.enregistrementImageGris(p,tokens[0],img_width,img_height,nouvtab);
+			}
+		}
+		catch(IOException e){System.out.println("Problème d'exception : "+e);}
+	}	
+}
+
