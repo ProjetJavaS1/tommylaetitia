@@ -1,9 +1,0 @@
-import mam3.ipa.projet.*; 
-
-public class Test{
-	public static void main(String[] args){
-		ImageCouleur i = new ImageCouleur(args[0]);
-
-		i.imageGrayScale();
-	}
-}
